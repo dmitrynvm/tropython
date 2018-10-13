@@ -16,7 +16,7 @@ def convert(x, p):
 
 
 class Z(object):
-    def __init__(self, value=math.inf):
+    def __init__(self, value):
         self.value = value
     def __add__(self, other):
         return Z(self.value + other.value)
@@ -31,24 +31,28 @@ class Z(object):
     def unit():
         return Z(1)
 
-#Z.zero = def __call__(cls, *args, **kwds):
-        print '__call__ of ', str(cls)
-        print '__call__ *args=', str(args)
-        return type.__call__(cls, *args, **kwds)Z(0)
-#Z.unit = Z(1)
-
-
-class Algebra(type):
-    def __call__(cls, *args, **kwds):
-        print('__call__ of ', str(cls))
-        print('__call__ *args=', str(args))
-        return type.__call__(cls, *args, **kwds)
-
 
 class Matrix(object):
-    __metaclass__ = Algebra
-    def __init__(self):
-        print('Object')
+    def __init__(self, T, rows, cols):
+        self.rows = rows
+        self.cols = cols
+        self.data = [[T.zero()] * cols for i in range(rows)]
+    def __call__(self, data):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.data[i][j] = data[i][j]
+    def __str__(self):
+        out = ''
+        for i in range(self.rows):
+            for j in range(self.cols):
+                out += str(self.data[i][j]) + ' '
+            out += '\n'
+        return out
+
+Space = Matrix(Z, 2, 2)
+print(Space)
+
+#A = Matrix()()
 '''
     def __init__(self, rows=0, cols=0, data=[], algebra=Z):
         self.rows = rows
@@ -73,11 +77,3 @@ class Matrix(object):
         return out
 '''
 
-a = Z(12)
-b = Z(3)
-c = a * b
-print('a + b =', a + b)
-print('a * b =', a * b)
-print('zero = ' + str(Z.zero()))
-print('unit = ' + str(Z.unit()))
-A = Matrix(2)

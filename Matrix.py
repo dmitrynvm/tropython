@@ -3,7 +3,7 @@ import math
 
 class Matrix:
 	'Matrix class.'
-	
+
 	def __init__(self, rows = 0, cols = 0, semifield=Qpmin, matrix = None):
 		'Initialization.'
 		self.rows = rows
@@ -105,7 +105,7 @@ class Matrix:
 		matrix = [line.rstrip('\n') for line in open(name)]
 
 		matrix = [[int(s) for s in line.split()] for line in matrix]
-		
+
 		self.matrix = matrix
 		self.rows = len(self.matrix)
 		self.cols = len(self.matrix[0])
