@@ -37,9 +37,6 @@ class Matrix:
 		'Representation.'
 		return str(self.matrix)
 
-	def __getitem__(self, x):
-		'[] operator.'
-		return self.matrix[x]
 
 	def __add__(self, other):
 		'+ operator.'
