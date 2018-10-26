@@ -53,11 +53,67 @@ def convert(x, p):
 '''
 
 
+Z = int
+
+def add(left, right):
+    result = Matrix(left.size, left.algebra)
+    for i in range(result.size[0]):
+        for j in range(result.size[1]):
+            result[i,j] = left[i,j] + right[i,j]
+    return result
+
+
+def mul(left, right):
+    result = Matrix((left.size[0], right.size[1]), left.algebra)
+    for i in range(result.size[0]):
+        for j in range(result.size[1]):
+            for k in range(left.size[1]):
+                result[i,j] += left[i,k] * right[k,j]
+    return result
+
+
+def zero(matrix):
+    for i in range(matrix.size[0]):
+        for j in range(matrix.size[1]):
+            matrix[i,j] = 0
+    return matrix
+
+def unit(matrix):
+    for i in range(matrix.size[0]):
+        for j in range(matrix.size[1]):
+            if i == j:
+                matrix[i,j] = 1
+            else:
+                matrix[i,j] = 0
+    return matrix
+
+
 class Matrix(object):
     def __init__(self, size, algebra):
         self.size = size
         self.algebra = algebra
-        self.data = [[algebra['type']()] * size[1] for i in range(size[1])]
+        self.data = [[algebra.type()] * size[1] for i in range(size[1])]
+
+    def __getitem__(self, key):
+        return self.data[key[0]][key[1]]
+
+    def __setitem__(self, key, value):
+        self.data[key[0]][key[1]] = value
+
+    def __getattr__(self, name):
+        if name == 'rows':
+            return self.size[0]
+        elif name == 'cols':
+            return self.size[1]
+        else:
+            return self.algebra.get(name, None)
+
+
+    def __add__(self, other):
+        return self.algebra.add(self, other)
+
+    def __mul__(self, other):
+        return self.algebra.mul(self, other)
 
     def __str__(self):
         out = ''
@@ -81,9 +137,30 @@ class Matrix(object):
                 out += '|\n'
         return out
 
-ZPlusMult = { 'type':int, 'add':sum, 'mul':sum }
+    def test(self):
+        return self.algebra.unit(self)
+
+
+class Algebra(dict):
+    __getattr__ = dict.__getitem__
+    __setattr__ = dict.__setitem__
+
+
+ZPlusMult = Algebra({
+    'type': Z,
+    'add': add,
+    'mul': mul,
+    'zero': zero,
+    'unit': unit
+})
 A = Matrix((2,2), ZPlusMult)
+B = Matrix((2,2), ZPlusMult)
+A.unit(A)
+B.unit(B)
+C = A + B
 print(A)
+print(B)
+print(C * C)
 
 '''
     def __call__(self, data):
@@ -93,11 +170,6 @@ print(A)
                 res.data[i][j] = self.T(data[i][j])
         return res
 
-    def __getitem__(self, key):
-        return self.data[key[0]][key[1]]
-
-    def __setitem__(self, key, value):
-        self.data[key[0]][key[1]] = value
 
     def __add__(self, other):
         res = Matrix(self.rows, self.cols, self.T)
@@ -117,23 +189,6 @@ print(A)
 
 '''
 
-Z = int
-
-def add(left, right):
-    result = Matrix(left.rows, left.cols, left.T, left.add, left.mul, left.zero, left.unit)
-    for i in range(res.rows):
-        for j in range(res.cols):
-            result[i,j] = left[i,j] + right[i,j]
-    return result
-
-
-def mul(left, right):
-    result = Matrix(left.rows, right.cols, left.T, left.add, left.mul, left.zero, left.unit)
-    for i in range(result.rows):
-        for j in range(result.cols):
-            for k in range(left.cols):
-                res[i,j] += self[i,k] * other[k,j]
-    return res
 
 '''
 X = Matrix(2, 2, Z)
