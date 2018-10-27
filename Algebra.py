@@ -55,32 +55,38 @@ def convert(x, p):
 
 Z = int
 
-def add(left, right):
+def Add(left, right):
     result = Matrix(left.size, left.algebra)
-    for i in range(result.size[0]):
-        for j in range(result.size[1]):
+    for i in range(result.rows):
+        for j in range(result.cols):
             result[i,j] = left[i,j] + right[i,j]
     return result
 
+def Min(left, right):
+    result = Matrix(left.size, left.algebra)
+    for i in range(result.rows):
+        for j in range(result.cols):
+            result[i,j] = min(left[i,j], right[i,j])
+    return result
 
-def mul(left, right):
-    result = Matrix((left.size[0], right.size[1]), left.algebra)
-    for i in range(result.size[0]):
-        for j in range(result.size[1]):
-            for k in range(left.size[1]):
+def Mul(left, right):
+    result = Matrix((left.rows, right.cols), left.algebra)
+    for i in range(result.rows):
+        for j in range(result.cols):
+            for k in range(left.cols):
                 result[i,j] += left[i,k] * right[k,j]
     return result
 
 
-def zero(matrix):
-    for i in range(matrix.size[0]):
-        for j in range(matrix.size[1]):
+def Zero(matrix):
+    for i in range(matrix.rows):
+        for j in range(matrix.cols):
             matrix[i,j] = 0
     return matrix
 
-def unit(matrix):
-    for i in range(matrix.size[0]):
-        for j in range(matrix.size[1]):
+def Unit(matrix):
+    for i in range(matrix.rows):
+        for j in range(matrix.cols):
             if i == j:
                 matrix[i,j] = 1
             else:
@@ -92,7 +98,7 @@ class Matrix(object):
     def __init__(self, size, algebra):
         self.size = size
         self.algebra = algebra
-        self.data = [[algebra.type()] * size[1] for i in range(size[1])]
+        self.data = [[algebra.type] * size[1] for i in range(size[1])]
 
     def __getitem__(self, key):
         return self.data[key[0]][key[1]]
@@ -108,37 +114,43 @@ class Matrix(object):
         else:
             return self.algebra.get(name, None)
 
-
     def __add__(self, other):
         return self.algebra.add(self, other)
 
     def __mul__(self, other):
         return self.algebra.mul(self, other)
 
+    def __call__(self, data):
+        result = self.clone()
+        for i in range(self.rows):
+           for j in range(self.cols):
+               result[i,j] = data[i][j]
+        return result
+
     def __str__(self):
         out = ''
-        if self.algebra['type'] == int:
+        if self.type == int:
             spaces = max([len(str(item)) for item in sum(self.data,[])])
-            for i in range(self.size[0]):
+            for i in range(self.rows):
                 out += '|'
-                for j in range(self.size[1]):
+                for j in range(self.cols):
                     padding = spaces
-                    if j != self.size[1] - 1:
+                    if j != self.cols - 1:
                         padding += 1
                     out += str(self.data[i][j]).ljust(padding)
                 out += '|\n'
         else:
-            for i in range(self.size[0]):
+            for i in range(self.rows):
                 out += '\n|\n'
-                for j in range(self.size[1]):
+                for j in range(self.cols):
                     out += str(self.data[i][j])
-                    if j != self.size[1] - 1:
+                    if j != self.cols - 1:
                         out += '\n'
                 out += '|\n'
         return out
 
-    def test(self):
-        return self.algebra.unit(self)
+    def clone(self):
+        return Matrix(self.size, self.algebra)
 
 
 class Algebra(dict):
@@ -146,21 +158,29 @@ class Algebra(dict):
     __setattr__ = dict.__setitem__
 
 
-ZPlusMult = Algebra({
+MZPlusMult = Algebra({
     'type': Z,
-    'add': add,
-    'mul': mul,
-    'zero': zero,
-    'unit': unit
+    'add': Add,
+    'mul': Mul,
+    'zero': Zero,
+    'unit': Unit
 })
-A = Matrix((2,2), ZPlusMult)
-B = Matrix((2,2), ZPlusMult)
-A.unit(A)
-B.unit(B)
-C = A + B
-print(A)
-print(B)
-print(C * C)
+
+MMZPlusMult = Algebra({
+    'type': MZPlusMult,
+    'add': Add,
+    'mul': Mul,
+    'zero': Zero,
+    'unit': Unit
+})
+
+X = Matrix((2,2), MZPlusMult)
+M = Matrix((4,4), MMZPlusMult)
+
+A = X([[1,-20], [-30,4]])
+B = X([[5,6], [7,8]])
+print(Min(A,B))
+print(M)
 
 '''
     def __call__(self, data):
